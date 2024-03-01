@@ -1,5 +1,6 @@
 package com.example.emergencydashboard.controller;
 
+import com.example.emergencydashboard.dto.IncidentEntityDto;
 import com.example.emergencydashboard.model.IncidentEntity;
 import com.example.emergencydashboard.service.IncidentService;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +16,17 @@ public class IncidentController {
     private final IncidentService service;
 
     @PostMapping
-    public IncidentEntity createIncident(@RequestBody IncidentEntity incidentEntity) {
+    public IncidentEntityDto createIncident(@RequestBody IncidentEntityDto incidentEntity) {
         return service.saveIncident(incidentEntity);
     }
 
     @GetMapping
-    public List<IncidentEntity> getAllIncidents() {
+    public List<IncidentEntityDto> getAllIncidents() {
         return service.findAllIncidents();
     }
 
     @GetMapping("/search")
-    public List<IncidentEntity> searchIncidents(@RequestParam String query) {
+    public List<IncidentEntityDto> searchIncidents(@RequestParam String query) {
         return service.searchIncidents(query);
     }
 }

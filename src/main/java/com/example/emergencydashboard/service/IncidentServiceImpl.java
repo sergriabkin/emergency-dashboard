@@ -1,5 +1,7 @@
 package com.example.emergencydashboard.service;
 
+import com.example.emergencydashboard.dto.IncidentEntityDto;
+import com.example.emergencydashboard.mapper.IncidentMapper;
 import com.example.emergencydashboard.model.IncidentEntity;
 import com.example.emergencydashboard.model.IncidentDocument;
 import com.example.emergencydashboard.repository.jpa.IncidentJpaRepository;
@@ -15,49 +17,28 @@ public class IncidentServiceImpl implements IncidentService {
 
     private final IncidentJpaRepository jpaRepository;
     private final IncidentSearchRepository searchRepository;
+    private final IncidentMapper mapper = IncidentMapper.INSTANCE;
 
     @Override
-    public IncidentEntity saveIncident(IncidentEntity incidentEntity) {
-
-        incidentEntity = jpaRepository.save(incidentEntity);
-
-        IncidentDocument incidentDocument = convertEntityToDocument(incidentEntity);
-        searchRepository.save(incidentDocument);
-        return incidentEntity;
+    public IncidentEntityDto saveIncident(IncidentEntityDto incidentDto) {
+        IncidentEntity entity = mapper.dtoToEntity(incidentDto);
+        entity = jpaRepository.save(entity);
+        IncidentDocument document = mapper.entityToDocument(entity);
+        searchRepository.save(document);
+        return mapper.entityToDto(entity);
     }
 
     @Override
-    public List<IncidentEntity> findAllIncidents() {
-        return jpaRepository.findAll();
+    public List<IncidentEntityDto> findAllIncidents() {
+        List<IncidentEntity> entities = jpaRepository.findAll();
+        return entities.stream().map(mapper::entityToDto).collect(Collectors.toList());
     }
 
     @Override
-    public List<IncidentEntity> searchIncidents(String query) {
+    public List<IncidentEntityDto> searchIncidents(String query) {
         return searchRepository.findByIncidentType(query)
                 .stream()
-                .map(this::convertDocumentToEntity)
+                .map(mapper::documentToDto)
                 .collect(Collectors.toList());
-    }
-
-    private IncidentDocument convertEntityToDocument(IncidentEntity entity) {
-        var incident = new IncidentDocument();
-        incident.setId(entity.getId());
-        incident.setIncidentType(entity.getIncidentType());
-        incident.setSeverityLevel(entity.getSeverityLevel());
-        incident.setTimestamp(entity.getTimestamp());
-        incident.setLatitude(entity.getLatitude());
-        incident.setLongitude(entity.getLongitude());
-        return incident;
-    }
-
-    private IncidentEntity convertDocumentToEntity(IncidentDocument document) {
-        var incident = new IncidentEntity();
-        incident.setId(document.getId());
-        incident.setIncidentType(document.getIncidentType());
-        incident.setSeverityLevel(document.getSeverityLevel());
-        incident.setTimestamp(document.getTimestamp());
-        incident.setLatitude(document.getLatitude());
-        incident.setLongitude(document.getLongitude());
-        return incident;
     }
 }
