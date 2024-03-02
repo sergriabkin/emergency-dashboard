@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Emergency Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <style>
+        #incidentList {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h2>Emergency Incidents Dashboard</h2>
+<div>
+    <form id="incidentForm">
+        <input type="text" id="incidentType" placeholder="Incident Type" required>
+        <input type="text" id="location" placeholder="Location" required>
+        <input type="text" id="severityLevel" placeholder="Severity Level" required>
+        <button type="submit">Report Incident</button>
+    </form>
+</div>
+<div id="incidentList">
+    <h3>Recent Incidents</h3>
+    <ul id="incidents"></ul>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var socket = new SockJS('/ws');
+    var stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function(frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/topic/incidents', function(incident) {
+            var incidentMessage = JSON.parse(incident.body);
+            var incidentList = document.getElementById("incidents");
+            var newIncident = document.createElement("li");
+            newIncident.appendChild(document.createTextNode(incidentMessage.incidentType + " at " + incidentMessage.location + " - Severity: " + incidentMessage.severityLevel));
+            incidentList.appendChild(newIncident);
+        });
+    });
+
+    document.getElementById("incidentForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        var incidentType = document.getElementById("incidentType").value;
+        var location = document.getElementById("location").value;
+        var severityLevel = document.getElementById("severityLevel").value;
+
+        stompClient.send("/app/incident", {}, JSON.stringify({
+            incidentType: incidentType,
+            location: location,
+            severityLevel: severityLevel,
+            timestamp: new Date().toISOString()
+        }));
+
+        document.getElementById("incidentType").value = "";
+        document.getElementById("location").value = "";
+        document.getElementById("severityLevel").value = "";
+    });
+    /*]]>*/
+</script>
+</body>
+</html>
