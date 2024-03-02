@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class IncidentEntityDto {
 
-    private Integer id;
+    private String id;
     private String incidentType;
     private double latitude;
     private double longitude;
