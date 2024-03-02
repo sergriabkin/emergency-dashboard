@@ -13,12 +13,14 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class WebSocketController {
     private static final String INCIDENT_SAVED_TEMPLATE = "incident {} is successfully saved and gonna broadcast to all subscribers";
+    private static final String RECEIVED_INCIDENT_TEMPLATE = "Received incident: {}";
 
     private final IncidentService service;
 
     @MessageMapping("/incident")
     @SendTo("/topic/incidents")
     public IncidentEntityDto notifyIncident(IncidentEntityDto incident) {
+        log.info(RECEIVED_INCIDENT_TEMPLATE, incident);
         IncidentEntityDto savedIncident = service.saveIncident(incident);
         log.info(INCIDENT_SAVED_TEMPLATE, savedIncident.getId());
         return savedIncident;

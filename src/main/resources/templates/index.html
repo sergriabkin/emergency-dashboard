@@ -15,7 +15,8 @@
 <div>
     <form id="incidentForm">
         <input type="text" id="incidentType" placeholder="Incident Type" required>
-        <input type="text" id="location" placeholder="Location" required>
+        <input type="text" id="latitude" placeholder="Latitude" required>
+        <input type="text" id="longitude" placeholder="Longitude" required>
         <input type="text" id="severityLevel" placeholder="Severity Level" required>
         <button type="submit">Report Incident</button>
     </form>
@@ -36,7 +37,7 @@
             var incidentMessage = JSON.parse(incident.body);
             var incidentList = document.getElementById("incidents");
             var newIncident = document.createElement("li");
-            newIncident.appendChild(document.createTextNode(incidentMessage.incidentType + " at " + incidentMessage.location + " - Severity: " + incidentMessage.severityLevel));
+            newIncident.appendChild(document.createTextNode(incidentMessage.incidentType + " at " + incidentMessage.latitude + ", " + incidentMessage.longitude + " - Severity: " + incidentMessage.severityLevel));
             incidentList.appendChild(newIncident);
         });
     });
@@ -44,18 +45,21 @@
     document.getElementById("incidentForm").addEventListener("submit", function(event) {
         event.preventDefault();
         var incidentType = document.getElementById("incidentType").value;
-        var location = document.getElementById("location").value;
         var severityLevel = document.getElementById("severityLevel").value;
+        var latitude = document.getElementById("latitude").value;
+        var longitude = document.getElementById("longitude").value;
 
         stompClient.send("/app/incident", {}, JSON.stringify({
             incidentType: incidentType,
-            location: location,
+            latitude: latitude,
+            longitude: longitude,
             severityLevel: severityLevel,
             timestamp: new Date().toISOString()
         }));
 
         document.getElementById("incidentType").value = "";
-        document.getElementById("location").value = "";
+        document.getElementById("latitude").value = "";
+        document.getElementById("longitude").value = "";
         document.getElementById("severityLevel").value = "";
     });
     /*]]>*/
