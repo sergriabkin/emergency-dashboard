@@ -34,8 +34,8 @@ public class IncidentServiceImplTest {
 
     @Test
     void saveIncident() {
-        IncidentEntityDto dto = new IncidentEntityDto(1, "Fire", 40.712776, -74.005974, LocalDateTime.now(), "High");
-        IncidentEntity entity = new IncidentEntity(1, "Fire", 40.712776, -74.005974, LocalDateTime.now(), "High");
+        IncidentEntityDto dto = new IncidentEntityDto("1", "Fire", 40.712776, -74.005974, LocalDateTime.now(), "High");
+        IncidentEntity entity = new IncidentEntity("1", "Fire", 40.712776, -74.005974, LocalDateTime.now(), "High");
 
         when(jpaRepository.save(any(IncidentEntity.class))).thenReturn(entity);
         when(searchRepository.save(any(IncidentDocument.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -49,7 +49,7 @@ public class IncidentServiceImplTest {
 
     @Test
     void findAllIncidents() {
-        IncidentEntity entity = new IncidentEntity(1, "Fire", 40.712776, -74.005974, LocalDateTime.now(), "High");
+        IncidentEntity entity = new IncidentEntity("1", "Fire", 40.712776, -74.005974, LocalDateTime.now(), "High");
         List<IncidentEntity> entities = Collections.singletonList(entity);
 
         when(jpaRepository.findAll()).thenReturn(entities);
@@ -65,8 +65,8 @@ public class IncidentServiceImplTest {
     void searchIncidents() {
         String query = "Fire";
         LocalDateTime now = LocalDateTime.now();
-        IncidentDocument document1 = new IncidentDocument(1, query, 40.7128, -74.0060, now, "Medium");
-        IncidentDocument document2 = new IncidentDocument(2, query, 34.0522, -118.2437, now, "High");
+        IncidentDocument document1 = new IncidentDocument("1", query, 40.7128, -74.0060, now, "Medium");
+        IncidentDocument document2 = new IncidentDocument("2", query, 34.0522, -118.2437, now, "High");
         List<IncidentDocument> foundDocuments = List.of(document1, document2);
 
         when(searchRepository.findByIncidentType(anyString())).thenReturn(foundDocuments);

@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class IncidentDocument {
 
     @Id
-    private Integer id;
+    private String id;
 
     private String incidentType;
 
