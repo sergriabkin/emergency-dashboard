@@ -1,6 +1,9 @@
 package com.example.emergencydashboard.service;
 
+import com.example.emergencydashboard.builder.IncidentQueryBuilder;
 import com.example.emergencydashboard.dto.IncidentEntityDto;
+import com.example.emergencydashboard.dto.IncidentSearchQueryDto;
+import com.example.emergencydashboard.executor.IncidentQueryExecutor;
 import com.example.emergencydashboard.model.IncidentDocument;
 import com.example.emergencydashboard.model.IncidentEntity;
 import com.example.emergencydashboard.repository.jpa.IncidentJpaRepository;
@@ -10,7 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
+import org.springframework.data.elasticsearch.core.query.Query;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -19,6 +25,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,6 +37,12 @@ public class IncidentServiceImplTest {
 
     @Mock
     private IncidentSearchRepository searchRepository;
+
+    @Mock
+    private IncidentQueryBuilder queryBuilder;
+
+    @Mock
+    private IncidentQueryExecutor queryExecutor;
 
     @InjectMocks
     private IncidentServiceImpl service;
@@ -94,4 +107,39 @@ public class IncidentServiceImplTest {
         assertThat(result.get(0).getId()).isEqualTo(document1.getId());
         assertThat(result.get(1).getId()).isEqualTo(document2.getId());
     }
+
+
+    @Test
+    void searchIncidents() {
+
+        var queryDto = mock(IncidentSearchQueryDto.class);
+        var query = mock(Query.class);
+        when(queryBuilder.buildQuery(queryDto)).thenReturn(query);
+
+        var searchHits = mock(SearchHits.class);
+        var hit = mock(SearchHit.class);
+        when(searchHits.getSearchHits()).thenReturn(List.of(hit));
+        when(queryExecutor.executeQuery(query)).thenReturn(searchHits);
+
+        IncidentDocument document = new IncidentDocument();
+        document.setId("1");
+        document.setIncidentType("Fire");
+        document.setLocation(new GeoPoint(-74.0060, 40.7128));
+        document.setTimestamp(NOW);
+        document.setSeverityLevel("Medium");
+
+        when(hit.getContent()).thenReturn(document);
+
+        List<IncidentEntityDto> result = service.searchIncidents(queryDto);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0))
+                .matches(entityDto -> entityDto.getId().equals(document.getId()))
+                .matches(entityDto -> entityDto.getIncidentType().equals(document.getIncidentType()))
+                .matches(entityDto -> entityDto.getLatitude().equals(document.getLocation().getLat()))
+                .matches(entityDto -> entityDto.getLongitude().equals(document.getLocation().getLon()))
+                .matches(entityDto -> entityDto.getTimestamp().equals(document.getTimestamp()))
+                .matches(entityDto -> entityDto.getSeverityLevel().equals(document.getSeverityLevel()));
+    }
+
 }
