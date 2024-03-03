@@ -23,9 +23,9 @@ This Java application, built using Spring Boot, offers real-time search capabili
 - [x] **Search Optimization**: Leveraged Elasticsearch's capabilities to ensure fast and accurate search queries.
 
 ### Optional Tasks
-- [ ] **Real-Time Dashboard**:
+- [x] **Real-Time Dashboard**:
    - WebSocket Integration: *Done*.
-   - UI Implementation: *Pending*. A simple UI using Thymeleaf to visualize real-time updates is partly implemented.
+   - UI Implementation: *Done*. A simple UI using Thymeleaf to visualize real-time updates is implemented.
 
 ### Dockerization
 - [x] **Docker Setup**: The application and Elasticsearch have been dockerized, enhancing portability and ease of deployment. Instructions for using Docker Compose are provided to run the application alongside Elasticsearch with minimal setup.
@@ -151,10 +151,88 @@ To run the application with its dependencies (e.g., Elasticsearch) using Docker 
   ```json
   {
     "incidentType": "fire",
-    "latitude": 113.0,
-    "longitude": 114.0,
+    "latitude": -10.321,
+    "longitude": 10.456,
     "timestamp": "2024-03-01T11:52:16.441220",
     "severityLevel": "medium"
   }
   ```
+
 - Access the H2 Database Console at `http://localhost:8080/h2-console`. Use the JDBC URL `jdbc:h2:mem:testdb`, with username `sa` and no password.
+
+- To view all incidents, send a GET request to `http://localhost:8080/incidents`. It will show all incidents from DB. Here is some typical response:
+
+  ```json
+   [
+  {
+        "id": "ff8080818e03ef81018e03f2b30b0001",
+        "incidentType": "fire",
+        "latitude": 3.5,
+        "longitude": 4.6,
+        "timestamp": "2024-03-01T11:52:16.44122",
+        "severityLevel": "medium"
+    },
+    {
+        "id": "ff8080818e03ef81018e03f31aec0002",
+        "incidentType": "medical",
+        "latitude": 13.5,
+        "longitude": 14.6,
+        "timestamp": "2024-03-01T11:52:16.44122",
+        "severityLevel": "medium"
+    }
+  ]
+  ```
+- To search incidents by incidentType, send a GET request to `http://localhost:8080/incidents/search/fire`. It will perform the search based on your query in "incidents" index of Elasticsearch. Here is some typical response:
+
+  ```json
+   [
+  {
+        "id": "ff8080818e03ef81018e03f2b30b0001",
+        "incidentType": "fire",
+        "latitude": -23.5,
+        "longitude": 34.6,
+        "timestamp": "2024-03-01T11:52:16.44122",
+        "severityLevel": "medium"
+    },
+    {
+        "id": "ff8080818e03ef81018e03f31aec0002",
+        "incidentType": "fire",
+        "latitude": 13.5,
+        "longitude": 14.6,
+        "timestamp": "2024-03-01T11:52:16.44122",
+        "severityLevel": "medium"
+    }
+  ]
+  ```
+
+- To search incidents by several parameters like incidentType, geo-position, timestamp, send a GET request with parameters like `http://localhost:8080/incidents/search?latitude=10.31&longitude=10.41&incidentType=fire`. It will perform the search based on your query in "incidents" index of Elasticsearch. Here is some typical response:
+
+  ```json
+   [
+    {
+        "id": "ff8080818e0469a9018e0471616d0001",
+        "incidentType": "fire",
+        "latitude": 10.3,
+        "longitude": 10.4,
+        "timestamp": "2024-03-01T11:52:16.441",
+        "severityLevel": "medium"
+    },
+    {
+        "id": "ff8080818e0469a9018e0471729f0002",
+        "incidentType": "fire",
+        "latitude": 10.31,
+        "longitude": 10.41,
+        "timestamp": "2024-03-01T11:52:16.441",
+        "severityLevel": "medium"
+    },
+    {
+        "id": "ff8080818e0469a9018e047184a30003",
+        "incidentType": "fire",
+        "latitude": 10.311,
+        "longitude": 10.411,
+        "timestamp": "2024-03-01T11:52:16.441",
+        "severityLevel": "medium"
+    }
+  ]
+  ```
+###TODO: describe all details

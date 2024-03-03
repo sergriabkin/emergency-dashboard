@@ -22,8 +22,8 @@ public class IncidentEntity {
     private String id;
 
     private String incidentType;
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
     private LocalDateTime timestamp;
     private String severityLevel;
 
