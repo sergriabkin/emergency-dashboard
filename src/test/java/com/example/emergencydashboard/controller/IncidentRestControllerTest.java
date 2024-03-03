@@ -54,7 +54,7 @@ class IncidentRestControllerTest {
 
     @Test
     void createIncident_WithInvalidLatitude_ReturnsBadRequest() throws Exception {
-        IncidentEntityDto invalidIncident = new IncidentEntityDto("1", "fire", 100.0, -74.005974, LocalDateTime.now(), "medium");
+        IncidentEntityDto invalidIncident = new IncidentEntityDto("1", "fire", 90.1, -74.005974, LocalDateTime.now(), "medium");
 
         mockMvc.perform(post("/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -65,7 +65,7 @@ class IncidentRestControllerTest {
 
     @Test
     void createIncident_WithInvalidLongitude_ReturnsBadRequest() throws Exception {
-        IncidentEntityDto invalidIncident = new IncidentEntityDto("1", "fire", 90.0, 180.1, LocalDateTime.now(), "medium");
+        IncidentEntityDto invalidIncident = new IncidentEntityDto("1", "fire", -90.0, -180.1, LocalDateTime.now(), "medium");
 
         mockMvc.perform(post("/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
