@@ -48,7 +48,7 @@ class IncidentRestControllerTest {
         mockMvc.perform(post("/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(incidentEntityDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().json(objectMapper.writeValueAsString(incidentEntityDto)));
     }
 

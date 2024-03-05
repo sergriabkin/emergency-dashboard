@@ -84,6 +84,12 @@ This application uses Elasticsearch, so if you want to run it through Docker, fo
 
    Ensure Elasticsearch is running and accessible at `http://localhost:9200`.
 
+**To run Elasticsearch locally (without Docker):**
+1. Download the archived version from official website - https://www.elastic.co/downloads/past-releases/elasticsearch-7-17-17
+2. Unpack it and run from terminal:
+    ```bash
+    cd {path_to_unarchived_folder}/bin/elasticsearch
+   ```
 
 ### Installing Lombok Plugin for IntelliJ IDEA
 
@@ -145,8 +151,43 @@ To run the application with its dependencies (e.g., Elasticsearch) using Docker 
 
 ## Using the Application
 
-###TODO: describe how to save on ui using thymeleaf form and broadcasting incidents to all opened clients (websocket), check data in elastic
-- To create an incident, send a POST request to `http://localhost:8080/incidents` with the following JSON body:
+- Access the H2 Database Console at `http://localhost:8080/h2-console`. Use the JDBC URL `jdbc:h2:mem:testdb`, with username `sa` and no password.
+
+### Saving Incidents via UI
+
+The application provides a user-friendly interface built with Thymeleaf for reporting emergency incidents. To report an incident, follow these steps:
+
+1. **Open the Application**: Navigate to `http://localhost:8080` in your web browser. You will see a form for reporting new incidents.
+
+2. **Fill Out the Incident Form**: Enter the details of the incident in the form. The fields include:
+    - **Incident Type**: The type of incident (e.g., fire, medical, etc.).
+    - **Latitude**: The latitude of the incident location (must be between -90.0 and 90.0).
+    - **Longitude**: The longitude of the incident location (must be between -180.0 and 180.0).
+    - **Severity Level**: The severity level of the incident (e.g., low, medium, high).
+
+3. **Submit the Form**: After filling out the form with the incident details, click the "Report Incident" button to submit the form. The incident data will be saved to the system and broadcasted to all open clients via WebSocket.
+
+### Checking Broadcasting Incidents
+
+The application utilizes WebSockets to broadcast reported incidents to all clients currently connected to the application. To check the broadcasting functionality:
+
+1. **Open Multiple Clients**: Open the application in multiple browser tabs or windows (`http://localhost:8080`).
+
+2. **Report an Incident**: In one of the browser tabs/windows, fill out the incident report form and submit it by clicking the "Report Incident" button.
+
+3. **Verify Broadcasting**: Upon submitting the form, all other open tabs/windows of the application should automatically display the reported incident in real-time. This confirms that the incident has been successfully broadcasted to all clients.
+
+### Note on WebSockets
+
+The WebSocket functionality ensures that all users of the application receive real-time updates of incidents without needing to refresh their browsers. This feature is particularly useful for emergency services dashboards, where timely information dissemination is crucial.
+
+### Troubleshooting
+
+- **WebSocket Connection Issues**: If you are experiencing issues with real-time updates not appearing in other clients, ensure that your browser supports WebSockets and that there are no network issues or browser extensions blocking WebSocket connections.
+- **Form Submission Errors**: If the form submission fails, check that all input fields are correctly filled and that the latitude and longitude values are within their valid ranges. The application will validate the input and display error messages for any invalid fields.
+
+### Using REST api
+- To create an incident using application REST api, send a POST request to `http://localhost:8080/incidents` with the following JSON body:
 
   ```json
   {
@@ -157,9 +198,7 @@ To run the application with its dependencies (e.g., Elasticsearch) using Docker 
     "severityLevel": "medium"
   }
   ```
-
-- Access the H2 Database Console at `http://localhost:8080/h2-console`. Use the JDBC URL `jdbc:h2:mem:testdb`, with username `sa` and no password.
-
+  
 - To view all incidents, send a GET request to `http://localhost:8080/incidents`. It will show all incidents from DB. Here is some typical response:
 
   ```json
@@ -204,35 +243,144 @@ To run the application with its dependencies (e.g., Elasticsearch) using Docker 
     }
   ]
   ```
+Updating the README.md with detailed information about the advanced search functionalities, including location/timestamp precision, boosting, sorting, and filtering mechanisms:
 
-- To search incidents by several parameters like incidentType, geo-position, timestamp, send a GET request with parameters like `http://localhost:8080/incidents/search?latitude=10.31&longitude=10.41&incidentType=fire`. It will perform the search based on your query in "incidents" index of Elasticsearch. Here is some typical response:
+---
 
-  ```json
-   [
-    {
-        "id": "ff8080818e0469a9018e0471616d0001",
-        "incidentType": "fire",
-        "latitude": 10.3,
-        "longitude": 10.4,
-        "timestamp": "2024-03-01T11:52:16.441",
-        "severityLevel": "medium"
-    },
-    {
-        "id": "ff8080818e0469a9018e0471729f0002",
-        "incidentType": "fire",
-        "latitude": 10.31,
-        "longitude": 10.41,
-        "timestamp": "2024-03-01T11:52:16.441",
-        "severityLevel": "medium"
-    },
-    {
-        "id": "ff8080818e0469a9018e047184a30003",
-        "incidentType": "fire",
-        "latitude": 10.311,
-        "longitude": 10.411,
-        "timestamp": "2024-03-01T11:52:16.441",
-        "severityLevel": "medium"
+## Advanced Incident Search Capabilities
+
+The application supports advanced search queries against the "incidents" index in Elasticsearch. This enables users to perform detailed searches based on several parameters such as `incidentType`, geographical position (`latitude` and `longitude`), and `timestamp`. The search functionality incorporates features like precision handling, type boosting, and sorting to enhance the search results according to relevance and specificity.
+
+### Search Query Parameters
+
+- **`incidentType`**: Searches for incidents matching the specified type. The search is boosted for this field, giving higher relevance to matches on incident type.
+- **Geographical Position (`latitude` and `longitude`)**: Performs a geospatial search to find incidents within a 10km radius from the specified point. This allows for pinpointing incidents based on location proximity.
+- **`timestamp`**: Filters incidents that occurred within ±1 hour of the specified timestamp, providing a time-based precision in search results.
+
+### Performing a Search
+
+To search for incidents using these parameters, send a GET request to the endpoint with your query parameters. For example:
+
+```
+http://localhost:8080/incidents/search?latitude=10.31&longitude=10.41&incidentType=fire
+```
+
+This request searches the "incidents" index for fire incidents near the specified geographical location, considering the specified time window.
+
+### Typical Response
+
+The response will include a list of incidents that match the search criteria. Each incident in the response contains detailed information including `id`, `incidentType`, `latitude`, `longitude`, `timestamp`, and `severityLevel`. For example:
+
+```json
+[
+  {
+      "id": "ff8080818e0469a9018e0471616d0001",
+      "incidentType": "fire",
+      "latitude": 10.3,
+      "longitude": 10.4,
+      "timestamp": "2024-03-01T11:52:16.441",
+      "severityLevel": "medium"
+  },
+  {
+      "id": "ff8080818e0469a9018e0471729f0002",
+      "incidentType": "fire",
+      "latitude": 10.31,
+      "longitude": 10.41,
+      "timestamp": "2024-03-01T11:52:16.441",
+      "severityLevel": "medium"
+  },
+  {
+      "id": "ff8080818e0469a9018e047184a30003",
+      "incidentType": "fire",
+      "latitude": 10.311,
+      "longitude": 10.411,
+      "timestamp": "2024-03-01T11:52:16.441",
+      "severityLevel": "medium"
+  }
+]
+```
+
+### Sorting and Relevance
+
+Results are sorted by relevance (`_score`) in descending order, ensuring that the most pertinent incidents are listed first. The scoring mechanism takes into account the boosting of the `incidentType` field and the proximity for geospatial queries, among other factors.
+
+### Note on Precision
+
+- **Location**: The search considers incidents within a 10km radius of the provided geo-coordinates, enabling precise location-based filtering.
+- **Timestamp**: The ±1 hour window around the provided timestamp helps in narrowing down incidents to a specific timeframe, increasing the temporal precision of the search.
+
+This advanced search functionality empowers users to conduct comprehensive and refined searches on the incident data, leveraging Elasticsearch's powerful query and analytical capabilities.
+
+## Directly Querying Elasticsearch
+
+### Accessing Elasticsearch
+
+To explore and query the incident data stored by the application, you can directly access Elasticsearch. This can be done using tools like Kibana, Postman, or even `curl` from the command line. Ensure you have the URL for the Elasticsearch instance, typically `http://localhost:9200` if running locally.
+
+### Basic Queries
+
+#### Viewing All Incidents
+
+To retrieve all incidents logged in the system, you can execute a simple search query against the `incidents` index:
+
+```bash
+curl -X GET "localhost:9200/incidents/_search?pretty" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "match_all": {}
+  }
+}
+'
+```
+
+This query returns all documents within the `incidents` index, formatted for readability (`?pretty`).
+
+#### Searching by Incident Type
+
+To search for incidents of a specific type (e.g., `fire`), use a `match` query:
+
+```bash
+curl -X GET "localhost:9200/incidents/_search?pretty" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "match": {
+      "incidentType": "fire"
     }
-  ]
-  ```
-###TODO: describe all details
+  }
+}
+'
+```
+
+### Advanced Queries
+
+#### Geospatial Searches
+
+If you want to find incidents within a certain distance from a point, you can use a `geo_distance` query. For example, to find incidents within 10km of a specific location:
+
+```bash
+curl -X GET "localhost:9200/incidents/_search?pretty" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "bool": {
+      "must": {
+        "match_all": {}
+      },
+      "filter": {
+        "geo_distance": {
+          "distance": "10km",
+          "location": {
+            "lat": 40.7128,
+            "lon": -74.0060
+          }
+        }
+      }
+    }
+  }
+}
+'
+```
+
+### Tips
+
+- **Index Name**: Ensure you're querying the correct index name (`incidents` in the examples).
+- **Query Adjustments**: Adjust the query parameters based on your specific search criteria.
