@@ -15,7 +15,9 @@ import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -30,6 +32,7 @@ public class IncidentServiceImpl implements IncidentService {
 
     private static final IncidentMapper mapper = IncidentMapper.INSTANCE;
 
+    @Transactional
     @Override
     public IncidentEntityDto saveIncident(IncidentEntityDto incidentDto) {
         IncidentEntity entity = mapper.dtoToEntity(incidentDto);
@@ -66,6 +69,34 @@ public class IncidentServiceImpl implements IncidentService {
                 .map(SearchHit::getContent)
                 .map(mapper::documentToDto)
                 .toList();
+    }
+
+    @Transactional
+    @Override
+    public IncidentEntityDto updateIncident(String id, IncidentEntityDto incidentDto) {
+        if (!jpaRepository.existsById(id)) {
+            throw new EntityNotFoundException("Incident not found with id: " + id);
+        }
+
+        IncidentEntity entityToUpdate = mapper.dtoToEntity(incidentDto);
+        entityToUpdate.setId(id);
+
+        IncidentEntity updatedEntity = jpaRepository.save(entityToUpdate);
+        IncidentDocument updatedDocument = mapper.entityToDocument(updatedEntity);
+        searchRepository.save(updatedDocument);
+
+        return mapper.entityToDto(updatedEntity);
+    }
+
+    @Transactional
+    @Override
+    public void deleteIncident(String id) {
+        if (!jpaRepository.existsById(id)) {
+            throw new EntityNotFoundException("Incident not found with id: " + id);
+        }
+
+        jpaRepository.deleteById(id);
+        searchRepository.deleteById(id);
     }
 
 }

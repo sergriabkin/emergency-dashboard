@@ -11,4 +11,8 @@ public interface IncidentService {
 
     List<IncidentEntityDto> searchIncidentsByType(String type);
     List<IncidentEntityDto> searchIncidents(IncidentSearchQueryDto queryDto);
+
+    IncidentEntityDto updateIncident(String id, IncidentEntityDto incidentDto);
+
+    void deleteIncident(String id);
 }

@@ -5,6 +5,6 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 
 import java.util.List;
 
-public interface IncidentSearchRepository extends ElasticsearchRepository<IncidentDocument, Integer> {
+public interface IncidentSearchRepository extends ElasticsearchRepository<IncidentDocument, String> {
     List<IncidentDocument> findByIncidentType(String incidentType);
 }

@@ -1,9 +1,9 @@
 package com.example.emergencydashboard.controller;
 
-import com.example.emergencydashboard.dto.IncidentSearchQueryDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.emergencydashboard.dto.IncidentEntityDto;
+import com.example.emergencydashboard.dto.IncidentSearchQueryDto;
 import com.example.emergencydashboard.service.IncidentService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,19 +12,25 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
 import static com.example.emergencydashboard.dto.IncidentEntityDto.LATITUDE_RANGE_MESSAGE;
 import static com.example.emergencydashboard.dto.IncidentEntityDto.LONGITUDE_RANGE_MESSAGE;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(IncidentRestController.class)
 class IncidentRestControllerTest {
 
+    private static final LocalDateTime NOW = LocalDateTime.now();
     @Autowired
     private MockMvc mockMvc;
 
@@ -38,7 +44,7 @@ class IncidentRestControllerTest {
 
     @BeforeEach
     void setUp() {
-        incidentEntityDto = new IncidentEntityDto("1", "fire", 40.712776, -74.005974, LocalDateTime.now(), "medium");
+        incidentEntityDto = new IncidentEntityDto("1", "fire", 40.712776, -74.005974, NOW, "medium");
     }
 
     @Test
@@ -54,24 +60,24 @@ class IncidentRestControllerTest {
 
     @Test
     void createIncident_WithInvalidLatitude_ReturnsBadRequest() throws Exception {
-        IncidentEntityDto invalidIncident = new IncidentEntityDto("1", "fire", 90.1, -74.005974, LocalDateTime.now(), "medium");
+        IncidentEntityDto invalidIncident = new IncidentEntityDto("1", "fire", 90.1, -74.005974, NOW, "medium");
 
         mockMvc.perform(post("/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidIncident)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.latitude").value(LATITUDE_RANGE_MESSAGE));
+                .andExpect(jsonPath("$.message.latitude").value(LATITUDE_RANGE_MESSAGE));
     }
 
     @Test
     void createIncident_WithInvalidLongitude_ReturnsBadRequest() throws Exception {
-        IncidentEntityDto invalidIncident = new IncidentEntityDto("1", "fire", -90.0, -180.1, LocalDateTime.now(), "medium");
+        IncidentEntityDto invalidIncident = new IncidentEntityDto("1", "fire", -90.0, -180.1, NOW, "medium");
 
         mockMvc.perform(post("/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidIncident)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.longitude").value(LONGITUDE_RANGE_MESSAGE));
+                .andExpect(jsonPath("$.message.longitude").value(LONGITUDE_RANGE_MESSAGE));
     }
 
 
@@ -100,7 +106,7 @@ class IncidentRestControllerTest {
                 .incidentType("fire")
                 .latitude(40.712776)
                 .longitude(-74.005974)
-                .timestamp(LocalDateTime.now())
+                .timestamp(NOW)
                 .build();
 
         given(service.searchIncidents(queryDto)).willReturn(Collections.singletonList(incidentEntityDto));
@@ -112,6 +118,58 @@ class IncidentRestControllerTest {
                         .param("timestamp", queryDto.getTimestamp().toString()))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(Collections.singletonList(incidentEntityDto))));
+    }
+
+    @Test
+    void updateIncident() throws Exception {
+        IncidentEntityDto updatedDto = new IncidentEntityDto("1", "Updated Fire", 41.712776, -74.005974, NOW, "High");
+
+        given(service.updateIncident(anyString(), any(IncidentEntityDto.class))).willReturn(updatedDto);
+
+        mockMvc.perform(put("/incidents/{id}", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedDto)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(updatedDto)));
+    }
+
+    @Test
+    void deleteIncident() throws Exception {
+        doNothing().when(service).deleteIncident(anyString());
+
+        mockMvc.perform(delete("/incidents/{id}", "1"))
+                .andExpect(status().isNoContent());
+
+        verify(service).deleteIncident("1");
+    }
+
+    @Test
+    void whenUnexpectedException_thenRespondInternalServerError() throws Exception {
+        IncidentEntityDto incidentEntity = new IncidentEntityDto("1", "fire", 40.712776, -74.005974, NOW, "medium");
+
+        given(service.saveIncident(any(IncidentEntityDto.class))).willThrow(new RuntimeException("Unexpected error message"));
+
+        mockMvc.perform(post("/incidents")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(incidentEntity)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RuntimeException))
+                .andExpect(jsonPath("$.error").value("Internal Server Error"))
+                .andExpect(jsonPath("$.message").value("An unexpected error occurred: Unexpected error message"));
+    }
+
+    @Test
+    void whenEntityNotFound_thenRespondNotFound() throws Exception {
+        given(service.updateIncident(anyString(), any(IncidentEntityDto.class)))
+                .willThrow(new EntityNotFoundException("Incident not found"));
+
+        mockMvc.perform(put("/incidents/{id}", "non-existing-id")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(incidentEntityDto)))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof EntityNotFoundException))
+                .andExpect(jsonPath("$.error").value("Entity Not Found"))
+                .andExpect(jsonPath("$.message").value("Incident not found"));
     }
 
 }

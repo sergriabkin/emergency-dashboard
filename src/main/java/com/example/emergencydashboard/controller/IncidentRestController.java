@@ -33,6 +33,18 @@ public class IncidentRestController {
         return service.findAllIncidents();
     }
 
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public IncidentEntityDto updateIncident(@PathVariable String id, @Valid @RequestBody IncidentEntityDto incidentDto) {
+        return service.updateIncident(id, incidentDto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteIncident(@PathVariable String id) {
+        service.deleteIncident(id);
+    }
+
     @GetMapping("/search/{type}")
     @ResponseStatus(HttpStatus.OK)
     public List<IncidentEntityDto> searchIncidentsByType(@PathVariable String type) {
