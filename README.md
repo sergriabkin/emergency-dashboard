@@ -384,3 +384,45 @@ curl -X GET "localhost:9200/incidents/_search?pretty" -H 'Content-Type: applicat
 
 - **Index Name**: Ensure you're querying the correct index name (`incidents` in the examples).
 - **Query Adjustments**: Adjust the query parameters based on your specific search criteria.
+
+## API Documentation with Swagger
+
+Our application is equipped with Swagger UI, providing a web-based interface for exploring and interacting with our RESTful services. Swagger UI offers a convenient way to test the endpoints directly from your browser without the need for additional tools like Postman.
+
+### Accessing Swagger UI
+
+To access the Swagger UI, launch the application and navigate to:
+
+```
+http://localhost:8080/swagger-ui/
+```
+
+Replace `8080` with the actual port number if your application is configured to run on a different port.
+
+### Using Swagger UI
+
+Upon accessing Swagger UI, you'll be presented with a list of all available REST endpoints grouped by controller. Each endpoint can be expanded to reveal detailed information about its purpose, input parameters, request body, and response formats.
+
+#### Trying Out Endpoints
+
+1. **Expand an endpoint**: Click on any endpoint to expand it and view detailed information.
+2. **Try it out**: Click the "Try it out" button to enable the form where you can enter request parameters or bodies.
+3. **Execute the request**: After filling in the necessary information, click "Execute" to send the request to the server.
+4. **View the response**: The response from the server, including status code, headers, and body, will be displayed directly below the request.
+
+### Example
+
+For instance, to create a new incident:
+
+1. Find the `/incidents` POST endpoint under the "incident-rest-controller" section.
+2. Click "Try it out", then fill in the request body with the incident details.
+3. Click "Execute" to submit the request.
+4. Observe the response details, which include the created incident.
+
+### Benefits of Swagger UI
+
+- **Ease of Use**: Quickly test and understand your APIs without writing additional code.
+- **Real-Time**: Interact with the actual back-end API in real-time.
+- **Documentation**: Serve as up-to-date documentation for your API endpoints.
+
+Swagger UI is an invaluable tool for both developers working on the application and for external consumers of the API.
