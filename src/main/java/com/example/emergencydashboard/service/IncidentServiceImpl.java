@@ -17,7 +17,6 @@ import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +28,7 @@ public class IncidentServiceImpl implements IncidentService {
     private final IncidentQueryBuilder queryBuilder;
     private final IncidentQueryExecutor queryExecutor;
 
-    private final IncidentMapper mapper = IncidentMapper.INSTANCE;
+    private static final IncidentMapper mapper = IncidentMapper.INSTANCE;
 
     @Override
     public IncidentEntityDto saveIncident(IncidentEntityDto incidentDto) {
@@ -43,7 +42,9 @@ public class IncidentServiceImpl implements IncidentService {
     @Override
     public List<IncidentEntityDto> findAllIncidents() {
         List<IncidentEntity> entities = jpaRepository.findAll();
-        return entities.stream().map(mapper::entityToDto).collect(Collectors.toList());
+        return entities.stream()
+                .map(mapper::entityToDto)
+                .toList();
     }
 
     @Override
@@ -51,7 +52,7 @@ public class IncidentServiceImpl implements IncidentService {
         return searchRepository.findByIncidentType(type)
                 .stream()
                 .map(mapper::documentToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -64,7 +65,7 @@ public class IncidentServiceImpl implements IncidentService {
         return searchHits.getSearchHits().stream()
                 .map(SearchHit::getContent)
                 .map(mapper::documentToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }
