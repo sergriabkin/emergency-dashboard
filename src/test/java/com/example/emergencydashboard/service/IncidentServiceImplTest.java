@@ -18,18 +18,19 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.data.elasticsearch.core.query.Query;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class IncidentServiceImplTest {
+class IncidentServiceImplTest {
 
     private static final LocalDateTime NOW = LocalDateTime.now();
     @Mock
@@ -140,6 +141,63 @@ public class IncidentServiceImplTest {
                 .matches(entityDto -> entityDto.getLongitude().equals(document.getLocation().getLon()))
                 .matches(entityDto -> entityDto.getTimestamp().equals(document.getTimestamp()))
                 .matches(entityDto -> entityDto.getSeverityLevel().equals(document.getSeverityLevel()));
+    }
+
+
+    @Test
+    void updateIncident() {
+        String id = "1";
+        IncidentEntityDto dtoToUpdate = new IncidentEntityDto(id, "Updated Fire", 41.712776, -73.005974, NOW, "High");
+        IncidentEntity updatedEntity = new IncidentEntity(id, "Updated Fire", 41.712776, -73.005974, NOW, "High");
+
+        when(jpaRepository.existsById(id)).thenReturn(true);
+        when(jpaRepository.save(any(IncidentEntity.class))).thenReturn(updatedEntity);
+        when(searchRepository.save(any(IncidentDocument.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        IncidentEntityDto result = service.updateIncident(id, dtoToUpdate);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(id);
+        assertThat(result.getIncidentType()).isEqualTo(dtoToUpdate.getIncidentType());
+        verify(jpaRepository).save(any(IncidentEntity.class));
+        verify(searchRepository).save(any(IncidentDocument.class));
+    }
+
+    @Test
+    void updateIncident_NotFound() {
+        String id = "2";
+        IncidentEntityDto dtoToUpdate = new IncidentEntityDto(id, "Fire", 40.712776, -74.005974, NOW, "High");
+
+        when(jpaRepository.existsById(id)).thenReturn(false);
+
+        assertThrows(EntityNotFoundException.class, () -> service.updateIncident(id, dtoToUpdate));
+
+        verify(jpaRepository, never()).save(any(IncidentEntity.class));
+        verify(searchRepository, never()).save(any(IncidentDocument.class));
+    }
+
+    @Test
+    void deleteIncident() {
+        String id = "1";
+
+        when(jpaRepository.existsById(id)).thenReturn(true);
+
+        service.deleteIncident(id);
+
+        verify(jpaRepository).deleteById(id);
+        verify(searchRepository).deleteById(id);
+    }
+
+    @Test
+    void deleteIncident_NotFound() {
+        String id = "2";
+
+        when(jpaRepository.existsById(id)).thenReturn(false);
+
+        assertThrows(EntityNotFoundException.class, () -> service.deleteIncident(id));
+
+        verify(jpaRepository, never()).deleteById(id);
+        verify(searchRepository, never()).deleteById(id);
     }
 
 }
