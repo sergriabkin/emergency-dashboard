@@ -1,6 +1,7 @@
 package com.example.emergencydashboard.builder;
 
 import com.example.emergencydashboard.dto.IncidentSearchQueryDto;
+import com.example.emergencydashboard.model.IncidentType;
 import org.elasticsearch.common.unit.DistanceUnit;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -28,9 +29,9 @@ public class IncidentQueryBuilderImpl implements IncidentQueryBuilder {
     protected BoolQueryBuilder getBoolQueryBuilder(IncidentSearchQueryDto queryDto) {
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
 
-        if (queryDto.getIncidentType() != null) {
+        if (queryDto.getIncidentType() != null && queryDto.getIncidentType() != IncidentType.NONE) {
             queryBuilder.should(
-                    matchQuery("incidentType", queryDto.getIncidentType())
+                    matchQuery("incidentType", queryDto.getIncidentType().getType())
                             .boost(3.0f)
             );
         }

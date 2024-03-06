@@ -1,5 +1,7 @@
 package com.example.emergencydashboard.dto;
 
+import com.example.emergencydashboard.model.IncidentType;
+import com.example.emergencydashboard.model.SeverityLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +18,7 @@ public class IncidentEntityDto {
     public static final String LATITUDE_RANGE_MESSAGE = "Latitude must be between -90.0 and 90.0";
 
     private String id;
-    private String incidentType;
+    private IncidentType incidentType;
 
     @DecimalMin(value = "-90.0", message = LATITUDE_RANGE_MESSAGE)
     @DecimalMax(value = "90.0", message = LATITUDE_RANGE_MESSAGE)
@@ -27,6 +29,6 @@ public class IncidentEntityDto {
     private Double longitude;
 
     private LocalDateTime timestamp;
-    private String severityLevel;
+    private SeverityLevel severityLevel;
 
 }

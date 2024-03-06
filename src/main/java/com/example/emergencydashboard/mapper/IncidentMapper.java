@@ -14,22 +14,34 @@ public interface IncidentMapper {
 
     IncidentMapper INSTANCE = Mappers.getMapper(IncidentMapper.class);
 
+    @Mapping(target = "incidentType", source = "entity.incidentType", defaultExpression = "java(com.example.emergencydashboard.model.IncidentType.NONE)")
+    @Mapping(target = "severityLevel", source = "entity.severityLevel", defaultExpression = "java(com.example.emergencydashboard.model.SeverityLevel.NONE)")
     IncidentEntityDto entityToDto(IncidentEntity entity);
 
     @Mapping(target = "location", source = "entity", qualifiedByName = "latLonEntityToGeoPoint")
+    @Mapping(target = "incidentType", source = "entity.incidentType", defaultExpression = "java(com.example.emergencydashboard.model.IncidentType.NONE)")
+    @Mapping(target = "severityLevel", source = "entity.severityLevel", defaultExpression = "java(com.example.emergencydashboard.model.SeverityLevel.NONE)")
     IncidentDocument entityToDocument(IncidentEntity entity);
 
+    @Mapping(target = "incidentType", source = "dto.incidentType", defaultExpression = "java(com.example.emergencydashboard.model.IncidentType.NONE)")
+    @Mapping(target = "severityLevel", source = "dto.severityLevel", defaultExpression = "java(com.example.emergencydashboard.model.SeverityLevel.NONE)")
     IncidentEntity dtoToEntity(IncidentEntityDto dto);
 
     @Mapping(target = "location", source = "dto", qualifiedByName = "latLonDtoToGeoPoint")
+    @Mapping(target = "incidentType", source = "dto.incidentType", defaultExpression = "java(com.example.emergencydashboard.model.IncidentType.NONE)")
+    @Mapping(target = "severityLevel", source = "dto.severityLevel", defaultExpression = "java(com.example.emergencydashboard.model.SeverityLevel.NONE)")
     IncidentDocument dtoToDocument(IncidentEntityDto dto);
 
     @Mapping(target = "latitude", source = "location.lat")
     @Mapping(target = "longitude", source = "location.lon")
+    @Mapping(target = "incidentType", source = "document.incidentType", defaultExpression = "java(com.example.emergencydashboard.model.IncidentType.NONE)")
+    @Mapping(target = "severityLevel", source = "document.severityLevel", defaultExpression = "java(com.example.emergencydashboard.model.SeverityLevel.NONE)")
     IncidentEntity documentToEntity(IncidentDocument document);
 
     @Mapping(target = "latitude", source = "location.lat")
     @Mapping(target = "longitude", source = "location.lon")
+    @Mapping(target = "incidentType", source = "document.incidentType", defaultExpression = "java(com.example.emergencydashboard.model.IncidentType.NONE)")
+    @Mapping(target = "severityLevel", source = "document.severityLevel", defaultExpression = "java(com.example.emergencydashboard.model.SeverityLevel.NONE)")
     IncidentEntityDto documentToDto(IncidentDocument document);
 
     @Named("latLonDtoToGeoPoint")

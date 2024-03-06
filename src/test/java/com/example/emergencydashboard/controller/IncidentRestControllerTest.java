@@ -2,6 +2,8 @@ package com.example.emergencydashboard.controller;
 
 import com.example.emergencydashboard.dto.IncidentEntityDto;
 import com.example.emergencydashboard.dto.IncidentSearchQueryDto;
+import com.example.emergencydashboard.model.IncidentType;
+import com.example.emergencydashboard.model.SeverityLevel;
 import com.example.emergencydashboard.service.IncidentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +46,7 @@ class IncidentRestControllerTest {
 
     @BeforeEach
     void setUp() {
-        incidentEntityDto = new IncidentEntityDto("1", "fire", 40.712776, -74.005974, NOW, "medium");
+        incidentEntityDto = new IncidentEntityDto("1", IncidentType.FIRE, 40.712776, -74.005974, NOW, SeverityLevel.MEDIUM);
     }
 
     @Test
@@ -60,7 +62,7 @@ class IncidentRestControllerTest {
 
     @Test
     void createIncident_WithInvalidLatitude_ReturnsBadRequest() throws Exception {
-        IncidentEntityDto invalidIncident = new IncidentEntityDto("1", "fire", 90.1, -74.005974, NOW, "medium");
+        IncidentEntityDto invalidIncident = new IncidentEntityDto("1", IncidentType.FIRE, 90.1, -74.005974, NOW, SeverityLevel.MEDIUM);
 
         mockMvc.perform(post("/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -71,7 +73,7 @@ class IncidentRestControllerTest {
 
     @Test
     void createIncident_WithInvalidLongitude_ReturnsBadRequest() throws Exception {
-        IncidentEntityDto invalidIncident = new IncidentEntityDto("1", "fire", -90.0, -180.1, NOW, "medium");
+        IncidentEntityDto invalidIncident = new IncidentEntityDto("1", IncidentType.FIRE, -90.0, -180.1, NOW, SeverityLevel.MEDIUM);
 
         mockMvc.perform(post("/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -92,7 +94,7 @@ class IncidentRestControllerTest {
 
     @Test
     void searchIncidentsByType() throws Exception {
-        String incidentType = "fire";
+        IncidentType incidentType = IncidentType.FIRE;
         given(service.searchIncidentsByType(incidentType)).willReturn(Collections.singletonList(incidentEntityDto));
 
         mockMvc.perform(get("/incidents/search/{type}", incidentType))
@@ -103,7 +105,7 @@ class IncidentRestControllerTest {
     @Test
     void searchIncidents() throws Exception {
         IncidentSearchQueryDto queryDto = IncidentSearchQueryDto.builder()
-                .incidentType("fire")
+                .incidentType(IncidentType.FIRE)
                 .latitude(40.712776)
                 .longitude(-74.005974)
                 .timestamp(NOW)
@@ -112,7 +114,7 @@ class IncidentRestControllerTest {
         given(service.searchIncidents(queryDto)).willReturn(Collections.singletonList(incidentEntityDto));
 
         mockMvc.perform(get("/incidents/search")
-                        .param("incidentType", queryDto.getIncidentType())
+                        .param("incidentType", queryDto.getIncidentType().getType())
                         .param("latitude", queryDto.getLatitude().toString())
                         .param("longitude", queryDto.getLongitude().toString())
                         .param("timestamp", queryDto.getTimestamp().toString()))
@@ -122,7 +124,7 @@ class IncidentRestControllerTest {
 
     @Test
     void updateIncident() throws Exception {
-        IncidentEntityDto updatedDto = new IncidentEntityDto("1", "Updated Fire", 41.712776, -74.005974, NOW, "High");
+        IncidentEntityDto updatedDto = new IncidentEntityDto("1", IncidentType.FIRE, 41.712776, -74.005974, NOW, SeverityLevel.HIGH);
 
         given(service.updateIncident(anyString(), any(IncidentEntityDto.class))).willReturn(updatedDto);
 
@@ -145,7 +147,7 @@ class IncidentRestControllerTest {
 
     @Test
     void whenUnexpectedException_thenRespondInternalServerError() throws Exception {
-        IncidentEntityDto incidentEntity = new IncidentEntityDto("1", "fire", 40.712776, -74.005974, NOW, "medium");
+        IncidentEntityDto incidentEntity = new IncidentEntityDto("1", IncidentType.FIRE, 40.712776, -74.005974, NOW, SeverityLevel.MEDIUM);
 
         given(service.saveIncident(any(IncidentEntityDto.class))).willThrow(new RuntimeException("Unexpected error message"));
 
@@ -170,6 +172,26 @@ class IncidentRestControllerTest {
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof EntityNotFoundException))
                 .andExpect(jsonPath("$.error").value("Entity Not Found"))
                 .andExpect(jsonPath("$.message").value("Incident not found"));
+    }
+
+    @Test
+    void createIncident_WithInvalidIncidentType_ReturnsBadRequest() throws Exception {
+        String invalidIncidentTypePayload = """
+        {
+            "incidentType": "invalid_type",
+            "latitude": 40.712776,
+            "longitude": -74.005974,
+            "timestamp": "%s",
+            "severityLevel": "MEDIUM"
+        }
+        """.formatted(NOW.toString());
+
+        mockMvc.perform(post("/incidents")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidIncidentTypePayload))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Validation Error"))
+                .andExpect(jsonPath("$.message").value("Invalid incident type: invalid_type"));
     }
 
 }
