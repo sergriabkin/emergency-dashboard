@@ -1,6 +1,7 @@
 package com.example.emergencydashboard.builder;
 
 import com.example.emergencydashboard.dto.IncidentSearchQueryDto;
+import com.example.emergencydashboard.model.IncidentType;
 import org.assertj.core.api.Assertions;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.junit.jupiter.api.Test;
@@ -17,41 +18,42 @@ class IncidentQueryBuilderImplTest {
     void whenBuildQueryWithIncidentType_thenShouldContainMatchQuery() {
         // Arrange
         var queryDto = IncidentSearchQueryDto.builder()
-                .incidentType("fire")
+                .incidentType(IncidentType.FIRE)
                 .build();
 
         // Act
         BoolQueryBuilder boolQueryBuilder = queryBuilder.getBoolQueryBuilder(queryDto);
 
         // Assert
-        Assertions.assertThat(boolQueryBuilder.should().size()).isEqualTo(1);
-        Assertions.assertThat(boolQueryBuilder.toString()).isEqualTo(getTypeShouldJson());
+        Assertions.assertThat(boolQueryBuilder.should()).hasSize(1);
+        Assertions.assertThat(boolQueryBuilder).hasToString(getTypeShouldJson());
     }
 
     private String getTypeShouldJson() {
-        return "{\n" +
-                "  \"bool\" : {\n" +
-                "    \"should\" : [\n" +
-                "      {\n" +
-                "        \"match\" : {\n" +
-                "          \"incidentType\" : {\n" +
-                "            \"query\" : \"fire\",\n" +
-                "            \"operator\" : \"OR\",\n" +
-                "            \"prefix_length\" : 0,\n" +
-                "            \"max_expansions\" : 50,\n" +
-                "            \"fuzzy_transpositions\" : true,\n" +
-                "            \"lenient\" : false,\n" +
-                "            \"zero_terms_query\" : \"NONE\",\n" +
-                "            \"auto_generate_synonyms_phrase_query\" : true,\n" +
-                "            \"boost\" : 3.0\n" +
-                "          }\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"adjust_pure_negative\" : true,\n" +
-                "    \"boost\" : 1.0\n" +
-                "  }\n" +
-                "}";
+        return """
+                {
+                  "bool" : {
+                    "should" : [
+                      {
+                        "match" : {
+                          "incidentType" : {
+                            "query" : "fire",
+                            "operator" : "OR",
+                            "prefix_length" : 0,
+                            "max_expansions" : 50,
+                            "fuzzy_transpositions" : true,
+                            "lenient" : false,
+                            "zero_terms_query" : "NONE",
+                            "auto_generate_synonyms_phrase_query" : true,
+                            "boost" : 3.0
+                          }
+                        }
+                      }
+                    ],
+                    "adjust_pure_negative" : true,
+                    "boost" : 1.0
+                  }
+                }""";
     }
 
     @Test
@@ -66,32 +68,33 @@ class IncidentQueryBuilderImplTest {
         BoolQueryBuilder boolQueryBuilder = queryBuilder.getBoolQueryBuilder(queryDto);
 
         // Assert
-        Assertions.assertThat(boolQueryBuilder.must().size()).isGreaterThan(0);
-        Assertions.assertThat(boolQueryBuilder.toString()).isEqualTo(getGeoDistanceLocationJson());
+        Assertions.assertThat(boolQueryBuilder.must()).isNotEmpty();
+        Assertions.assertThat(boolQueryBuilder).hasToString(getGeoDistanceLocationJson());
     }
 
     private String getGeoDistanceLocationJson() {
-        return "{\n" +
-                "  \"bool\" : {\n" +
-                "    \"must\" : [\n" +
-                "      {\n" +
-                "        \"geo_distance\" : {\n" +
-                "          \"location\" : [\n" +
-                "            -74.006,\n" +
-                "            40.7128\n" +
-                "          ],\n" +
-                "          \"distance\" : 10000.0,\n" +
-                "          \"distance_type\" : \"arc\",\n" +
-                "          \"validation_method\" : \"STRICT\",\n" +
-                "          \"ignore_unmapped\" : false,\n" +
-                "          \"boost\" : 1.0\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"adjust_pure_negative\" : true,\n" +
-                "    \"boost\" : 1.0\n" +
-                "  }\n" +
-                "}";
+        return """
+                {
+                  "bool" : {
+                    "must" : [
+                      {
+                        "geo_distance" : {
+                          "location" : [
+                            -74.006,
+                            40.7128
+                          ],
+                          "distance" : 10000.0,
+                          "distance_type" : "arc",
+                          "validation_method" : "STRICT",
+                          "ignore_unmapped" : false,
+                          "boost" : 1.0
+                        }
+                      }
+                    ],
+                    "adjust_pure_negative" : true,
+                    "boost" : 1.0
+                  }
+                }""";
     }
 
     @Test
@@ -108,30 +111,31 @@ class IncidentQueryBuilderImplTest {
         BoolQueryBuilder boolQueryBuilder = queryBuilder.getBoolQueryBuilder(queryDto);
 
         // Assert
-        Assertions.assertThat(boolQueryBuilder.must().size()).isGreaterThan(0);
-        Assertions.assertThat(boolQueryBuilder.toString()).isEqualTo(getTimestampRangeJson());
+        Assertions.assertThat(boolQueryBuilder.must()).isNotEmpty();
+        Assertions.assertThat(boolQueryBuilder).hasToString(getTimestampRangeJson());
     }
 
     private String getTimestampRangeJson() {
-        return "{\n" +
-                "  \"bool\" : {\n" +
-                "    \"must\" : [\n" +
-                "      {\n" +
-                "        \"range\" : {\n" +
-                "          \"timestamp\" : {\n" +
-                "            \"from\" : \"2024-03-01T10:52:16.000Z\",\n" +
-                "            \"to\" : \"2024-03-01T12:52:16.000Z\",\n" +
-                "            \"include_lower\" : true,\n" +
-                "            \"include_upper\" : true,\n" +
-                "            \"boost\" : 1.0\n" +
-                "          }\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"adjust_pure_negative\" : true,\n" +
-                "    \"boost\" : 1.0\n" +
-                "  }\n" +
-                "}";
+        return """
+                {
+                  "bool" : {
+                    "must" : [
+                      {
+                        "range" : {
+                          "timestamp" : {
+                            "from" : "2024-03-01T10:52:16.000Z",
+                            "to" : "2024-03-01T12:52:16.000Z",
+                            "include_lower" : true,
+                            "include_upper" : true,
+                            "boost" : 1.0
+                          }
+                        }
+                      }
+                    ],
+                    "adjust_pure_negative" : true,
+                    "boost" : 1.0
+                  }
+                }""";
     }
 
     @Test

@@ -21,11 +21,14 @@ public class IncidentEntity {
     @GenericGenerator(name="system-uuid", strategy = "uuid")
     private String id;
 
-    private String incidentType;
+    @Enumerated(EnumType.STRING)
+    private IncidentType incidentType;
+
     private Double latitude;
     private Double longitude;
     private LocalDateTime timestamp;
-    private String severityLevel;
+
+    @Enumerated(EnumType.STRING)
+    private SeverityLevel severityLevel;
 
 }
-

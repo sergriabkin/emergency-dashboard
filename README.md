@@ -31,6 +31,37 @@ This Java application, built using Spring Boot, offers real-time search capabili
 - [x] **Docker Setup**: The application and Elasticsearch have been dockerized, enhancing portability and ease of deployment. Instructions for using Docker Compose are provided to run the application alongside Elasticsearch with minimal setup.
 
 
+## Possible Improvements
+
+### Configuration
+- **Inject Values from Properties:** To enhance flexibility, inject values such as `search.distance.precision.kilometers` and `search.timestamp.precision.hours` directly from the application properties into the query builder. This allows for easier adjustments to search parameters without needing code changes.
+
+### Logging
+- **Enhanced Logging:** Implement more comprehensive logging throughout the application, utilizing different log levels (DEBUG, INFO, WARN, ERROR) to facilitate easier debugging and monitoring of the application's behavior in different environments.
+
+### Aspect-Oriented Programming (AOP)
+- **Spring AOP for Logging and Execution Time:** Utilize Spring AOP to centralize logging and measure the execution time of critical operations. This can help in identifying bottlenecks and optimizing performance.
+
+### Spring Profiles
+- **Use of Different Spring Profiles:** Employ Spring Profiles to manage environment-specific configurations more effectively. This can aid in separating development, testing, and production configurations, thereby improving the deployment process.
+
+### Search Functionality
+- **Additive Boost for SeverityLevel:** Introduce an additive boost for `SeverityLevel` in search queries to prioritize incidents based on their severity. This would refine search results, making them more relevant.
+
+- **Use RequestBody for SearchIncidents Endpoint:** To support more complex search queries, consider switching from `@RequestParam` to `@RequestBody`. This change would enable the use of a JSON object for search criteria, offering more flexibility in specifying search parameters.
+
+### Test Data Management
+- **Use JSON Files from Resources for Test Data:** Leverage JSON files stored in the `resources` directory for loading test data in unit and integration tests. This approach simplifies the management of test data and enhances readability.
+
+### Exception Handling
+- **Exception Handlers for Database and Elasticsearch Exceptions:** Implement specific exception handlers for database and Elasticsearch exceptions to provide clearer error responses and improve the robustness of the application.
+
+### Testing
+- **More Test Cases with Negative Scenarios and Boundary Values:** Develop an extensive suite of tests, including negative scenarios and boundary value tests, to ensure the application handles a wide range of inputs gracefully and securely.
+
+By addressing these areas, the project can achieve higher maintainability, scalability, and overall quality. Continuous evaluation and incorporation of best practices are key to the ongoing success and improvement of the application.
+
+
 # Setup and Running the Project
 
 ## Prerequisites

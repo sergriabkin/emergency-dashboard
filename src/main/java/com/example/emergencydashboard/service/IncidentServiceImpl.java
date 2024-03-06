@@ -7,6 +7,7 @@ import com.example.emergencydashboard.executor.IncidentQueryExecutor;
 import com.example.emergencydashboard.mapper.IncidentMapper;
 import com.example.emergencydashboard.model.IncidentDocument;
 import com.example.emergencydashboard.model.IncidentEntity;
+import com.example.emergencydashboard.model.IncidentType;
 import com.example.emergencydashboard.repository.jpa.IncidentJpaRepository;
 import com.example.emergencydashboard.repository.search.IncidentSearchRepository;
 import lombok.RequiredArgsConstructor;
@@ -51,8 +52,8 @@ public class IncidentServiceImpl implements IncidentService {
     }
 
     @Override
-    public List<IncidentEntityDto> searchIncidentsByType(String type) {
-        return searchRepository.findByIncidentType(type)
+    public List<IncidentEntityDto> searchIncidentsByType(IncidentType type) {
+        return searchRepository.findByIncidentType(type.getType())
                 .stream()
                 .map(mapper::documentToDto)
                 .toList();

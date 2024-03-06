@@ -18,7 +18,7 @@ public class IncidentDocument {
     @Id
     private String id;
 
-    private String incidentType;
+    private IncidentType incidentType;
 
     @Field(type = FieldType.Object)
     @GeoPointField
@@ -27,6 +27,6 @@ public class IncidentDocument {
     @Field(type = FieldType.Date, format = DateFormat.custom, pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSZZ")
     private LocalDateTime timestamp;
 
-    private String severityLevel;
+    private SeverityLevel severityLevel;
 
 }
