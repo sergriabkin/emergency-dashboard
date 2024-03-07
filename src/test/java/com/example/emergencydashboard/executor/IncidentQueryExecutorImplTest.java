@@ -1,6 +1,7 @@
 package com.example.emergencydashboard.executor;
 
 import com.example.emergencydashboard.model.IncidentDocument;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -8,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.Query;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 
 import java.util.List;
 
@@ -27,7 +28,8 @@ class IncidentQueryExecutorImplTest {
     @Test
     void whenExecuteQuery_thenShouldCallTemplateAndReturnSearchHits() {
         // Arrange
-        Query query = mock(Query.class);
+        var query = mock(NativeSearchQuery.class);
+        when(query.getQuery()).thenReturn(QueryBuilders.matchAllQuery());
         var expectedDocument = mock(IncidentDocument.class);
         var expectedSearchHits = mock(SearchHits.class);
         when(expectedSearchHits.getTotalHits()).thenReturn(1L);

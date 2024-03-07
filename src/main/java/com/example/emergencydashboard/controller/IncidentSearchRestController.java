@@ -15,8 +15,7 @@ import javax.validation.constraints.DecimalMin;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.example.emergencydashboard.dto.IncidentEntityDto.LATITUDE_RANGE_MESSAGE;
-import static com.example.emergencydashboard.dto.IncidentEntityDto.LONGITUDE_RANGE_MESSAGE;
+import static com.example.emergencydashboard.dto.IncidentEntityDto.*;
 
 @RestController
 @RequestMapping("/incidents/search")
@@ -38,12 +37,12 @@ public class IncidentSearchRestController {
             @RequestParam(required = false)
             String incidentType,
             @RequestParam(required = false)
-            @DecimalMin(value = "-90.0", message = LATITUDE_RANGE_MESSAGE)
-            @DecimalMax(value = "90.0", message = LATITUDE_RANGE_MESSAGE)
+            @DecimalMin(value = LATITUDE_MIN, message = LATITUDE_RANGE_MESSAGE)
+            @DecimalMax(value = LATITUDE_MAX, message = LATITUDE_RANGE_MESSAGE)
             Double latitude,
             @RequestParam(required = false)
-            @DecimalMin(value = "-180.0", message = LONGITUDE_RANGE_MESSAGE)
-            @DecimalMax(value = "180.0", message = LONGITUDE_RANGE_MESSAGE)
+            @DecimalMin(value = LONGITUDE_MIN, message = LONGITUDE_RANGE_MESSAGE)
+            @DecimalMax(value = LONGITUDE_MAX, message = LONGITUDE_RANGE_MESSAGE)
             Double longitude,
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

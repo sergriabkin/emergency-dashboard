@@ -24,7 +24,7 @@ public class IncidentDocument {
     @GeoPointField
     private GeoPoint location;
 
-    @Field(type = FieldType.Date, format = DateFormat.custom, pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSZZ")
+    @Field(type = FieldType.Date, format = DateFormat.date_time_no_millis, pattern = "uuuu-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
 
     private SeverityLevel severityLevel;

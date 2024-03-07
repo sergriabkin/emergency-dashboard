@@ -123,8 +123,8 @@ class IncidentQueryBuilderImplTest {
                       {
                         "range" : {
                           "timestamp" : {
-                            "from" : "2024-03-01T10:52:16.000Z",
-                            "to" : "2024-03-01T12:52:16.000Z",
+                            "from" : "2024-03-01T10:52:16",
+                            "to" : "2024-03-01T12:52:16",
                             "include_lower" : true,
                             "include_upper" : true,
                             "boost" : 1.0
