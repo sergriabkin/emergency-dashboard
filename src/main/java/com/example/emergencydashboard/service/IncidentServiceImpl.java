@@ -24,7 +24,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class IncidentServiceImpl implements IncidentService {
+public class IncidentServiceImpl implements IncidentService, IncidentSearchService {
 
     private final IncidentJpaRepository jpaRepository;
     private final IncidentSearchRepository searchRepository;
