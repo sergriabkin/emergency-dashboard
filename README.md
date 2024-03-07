@@ -25,7 +25,7 @@ This Java application, built using Spring Boot, offers real-time search capabili
 ### Optional Tasks
 - [x] **Real-Time Dashboard**:
    - WebSocket Integration: *Done*.
-   - UI Implementation: *Done*. A simple UI using Thymeleaf to visualize real-time updates is implemented.
+   - UI Implementation: A simple UI using Thymeleaf to visualize real-time updates is implemented.
 
 ### Dockerization
 - [x] **Docker Setup**: The application and Elasticsearch have been dockerized, enhancing portability and ease of deployment. Instructions for using Docker Compose are provided to run the application alongside Elasticsearch with minimal setup.

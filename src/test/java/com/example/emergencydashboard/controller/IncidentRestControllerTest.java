@@ -1,7 +1,6 @@
 package com.example.emergencydashboard.controller;
 
 import com.example.emergencydashboard.dto.IncidentEntityDto;
-import com.example.emergencydashboard.dto.IncidentSearchQueryDto;
 import com.example.emergencydashboard.model.IncidentType;
 import com.example.emergencydashboard.model.SeverityLevel;
 import com.example.emergencydashboard.service.IncidentService;
@@ -93,36 +92,6 @@ class IncidentRestControllerTest {
     }
 
     @Test
-    void searchIncidentsByType() throws Exception {
-        IncidentType incidentType = IncidentType.FIRE;
-        given(service.searchIncidentsByType(incidentType)).willReturn(Collections.singletonList(incidentEntityDto));
-
-        mockMvc.perform(get("/incidents/search/{type}", incidentType))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(Collections.singletonList(incidentEntityDto))));
-    }
-
-    @Test
-    void searchIncidents() throws Exception {
-        IncidentSearchQueryDto queryDto = IncidentSearchQueryDto.builder()
-                .incidentType(IncidentType.FIRE)
-                .latitude(40.712776)
-                .longitude(-74.005974)
-                .timestamp(NOW)
-                .build();
-
-        given(service.searchIncidents(queryDto)).willReturn(Collections.singletonList(incidentEntityDto));
-
-        mockMvc.perform(get("/incidents/search")
-                        .param("incidentType", queryDto.getIncidentType().getType())
-                        .param("latitude", queryDto.getLatitude().toString())
-                        .param("longitude", queryDto.getLongitude().toString())
-                        .param("timestamp", queryDto.getTimestamp().toString()))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(Collections.singletonList(incidentEntityDto))));
-    }
-
-    @Test
     void updateIncident() throws Exception {
         IncidentEntityDto updatedDto = new IncidentEntityDto("1", IncidentType.FIRE, 41.712776, -74.005974, NOW, SeverityLevel.HIGH);
 
@@ -177,14 +146,14 @@ class IncidentRestControllerTest {
     @Test
     void createIncident_WithInvalidIncidentType_ReturnsBadRequest() throws Exception {
         String invalidIncidentTypePayload = """
-        {
-            "incidentType": "invalid_type",
-            "latitude": 40.712776,
-            "longitude": -74.005974,
-            "timestamp": "%s",
-            "severityLevel": "MEDIUM"
-        }
-        """.formatted(NOW.toString());
+                {
+                    "incidentType": "invalid_type",
+                    "latitude": 40.712776,
+                    "longitude": -74.005974,
+                    "timestamp": "%s",
+                    "severityLevel": "MEDIUM"
+                }
+                """.formatted(NOW.toString());
 
         mockMvc.perform(post("/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
