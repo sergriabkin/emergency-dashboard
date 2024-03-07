@@ -225,7 +225,7 @@ The WebSocket functionality ensures that all users of the application receive re
     "incidentType": "fire",
     "latitude": -10.321,
     "longitude": 10.456,
-    "timestamp": "2024-03-01T11:52:16.441220",
+    "timestamp": "2024-03-01T11:52:16",
     "severityLevel": "medium"
   }
   ```
@@ -239,7 +239,7 @@ The WebSocket functionality ensures that all users of the application receive re
         "incidentType": "fire",
         "latitude": 3.5,
         "longitude": 4.6,
-        "timestamp": "2024-03-01T11:52:16.44122",
+        "timestamp": "2024-03-01T11:52:16",
         "severityLevel": "medium"
     },
     {
@@ -247,7 +247,7 @@ The WebSocket functionality ensures that all users of the application receive re
         "incidentType": "medical",
         "latitude": 13.5,
         "longitude": 14.6,
-        "timestamp": "2024-03-01T11:52:16.44122",
+        "timestamp": "2024-03-01T11:52:16",
         "severityLevel": "medium"
     }
   ]
@@ -261,7 +261,7 @@ The WebSocket functionality ensures that all users of the application receive re
         "incidentType": "fire",
         "latitude": -23.5,
         "longitude": 34.6,
-        "timestamp": "2024-03-01T11:52:16.44122",
+        "timestamp": "2024-03-01T11:52:16",
         "severityLevel": "medium"
     },
     {
@@ -269,7 +269,7 @@ The WebSocket functionality ensures that all users of the application receive re
         "incidentType": "fire",
         "latitude": 13.5,
         "longitude": 14.6,
-        "timestamp": "2024-03-01T11:52:16.44122",
+        "timestamp": "2024-03-01T11:52:16",
         "severityLevel": "medium"
     }
   ]
@@ -293,10 +293,10 @@ The application supports advanced search queries against the "incidents" index i
 To search for incidents using these parameters, send a GET request to the endpoint with your query parameters. For example:
 
 ```
-http://localhost:8080/incidents/search?latitude=10.31&longitude=10.41&incidentType=fire
+http://localhost:8080/incidents/search?latitude=10.31&longitude=10.41&incidentType=fire&timestamp=2024-03-03T11:30:00
 ```
 
-This request searches the "incidents" index for fire incidents near the specified geographical location, considering the specified time window.
+This request searches the "incidents" index for fire incidents near the specified geographical location, matched the specified time window.
 
 ### Typical Response
 
@@ -309,7 +309,7 @@ The response will include a list of incidents that match the search criteria. Ea
       "incidentType": "fire",
       "latitude": 10.3,
       "longitude": 10.4,
-      "timestamp": "2024-03-01T11:52:16.441",
+      "timestamp": "2024-03-01T11:52:16",
       "severityLevel": "medium"
   },
   {
@@ -317,7 +317,7 @@ The response will include a list of incidents that match the search criteria. Ea
       "incidentType": "fire",
       "latitude": 10.31,
       "longitude": 10.41,
-      "timestamp": "2024-03-01T11:52:16.441",
+      "timestamp": "2024-03-01T11:52:16",
       "severityLevel": "medium"
   },
   {
@@ -325,7 +325,7 @@ The response will include a list of incidents that match the search criteria. Ea
       "incidentType": "fire",
       "latitude": 10.311,
       "longitude": 10.411,
-      "timestamp": "2024-03-01T11:52:16.441",
+      "timestamp": "2024-03-01T11:52:16",
       "severityLevel": "medium"
   }
 ]
