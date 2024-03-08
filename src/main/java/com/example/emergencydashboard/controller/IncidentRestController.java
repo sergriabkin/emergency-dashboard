@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/incidents")
+@RequestMapping("/api/v1/incidents")
 @RequiredArgsConstructor
 @Validated
 public class IncidentRestController {
@@ -28,6 +28,12 @@ public class IncidentRestController {
     @ResponseStatus(HttpStatus.OK)
     public List<IncidentEntityDto> getAllIncidents() {
         return service.findAllIncidents();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public IncidentEntityDto getIncidentById(@PathVariable String id) {
+        return service.findIncidentById(id);
     }
 
     @PutMapping("/{id}")

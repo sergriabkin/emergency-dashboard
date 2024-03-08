@@ -46,7 +46,7 @@ class IncidentSearchRestControllerTest {
         IncidentType incidentType = IncidentType.FIRE;
         given(service.searchIncidentsByType(incidentType)).willReturn(Collections.singletonList(incidentEntityDto));
 
-        mockMvc.perform(get("/incidents/search/{type}", incidentType))
+        mockMvc.perform(get("/api/v1/incidents/search/{type}", incidentType))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(Collections.singletonList(incidentEntityDto))));
     }
@@ -62,7 +62,7 @@ class IncidentSearchRestControllerTest {
 
         given(service.searchIncidents(queryDto)).willReturn(Collections.singletonList(incidentEntityDto));
 
-        mockMvc.perform(get("/incidents/search")
+        mockMvc.perform(get("/api/v1/incidents/search")
                         .param("incidentType", queryDto.getIncidentType().getType())
                         .param("latitude", queryDto.getLatitude().toString())
                         .param("longitude", queryDto.getLongitude().toString())
