@@ -8,6 +8,7 @@ public interface IncidentService {
     IncidentEntityDto saveIncident(IncidentEntityDto incidentDto);
 
     List<IncidentEntityDto> findAllIncidents();
+    IncidentEntityDto findIncidentById(String id);
 
     IncidentEntityDto updateIncident(String id, IncidentEntityDto incidentDto);
 

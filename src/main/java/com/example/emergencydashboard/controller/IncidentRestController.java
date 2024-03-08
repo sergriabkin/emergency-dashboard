@@ -30,6 +30,12 @@ public class IncidentRestController {
         return service.findAllIncidents();
     }
 
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public IncidentEntityDto getIncidentById(@PathVariable String id) {
+        return service.findIncidentById(id);
+    }
+
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public IncidentEntityDto updateIncident(@PathVariable String id, @Valid @RequestBody IncidentEntityDto incidentDto) {

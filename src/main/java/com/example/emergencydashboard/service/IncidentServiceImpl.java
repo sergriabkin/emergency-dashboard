@@ -41,6 +41,13 @@ public class IncidentServiceImpl implements IncidentService {
                 .toList();
     }
 
+    @Override
+    public IncidentEntityDto findIncidentById(String id) {
+        return jpaRepository.findById(id)
+                .map(mapper::entityToDto)
+                .orElseThrow(() -> new EntityNotFoundException(INCIDENT_NOT_FOUND_TEMPLATE + id));
+    }
+
     @Transactional
     @Override
     public IncidentEntityDto updateIncident(String id, IncidentEntityDto incidentDto) {

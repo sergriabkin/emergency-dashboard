@@ -52,7 +52,7 @@ class IncidentRestControllerTest {
     void createIncident() throws Exception {
         given(service.saveIncident(incidentEntityDto)).willReturn(incidentEntityDto);
 
-        mockMvc.perform(post("/incidents")
+        mockMvc.perform(post("/api/v1/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(incidentEntityDto)))
                 .andExpect(status().isCreated())
@@ -63,7 +63,7 @@ class IncidentRestControllerTest {
     void createIncident_WithInvalidLatitude_ReturnsBadRequest() throws Exception {
         IncidentEntityDto invalidIncident = new IncidentEntityDto("1", IncidentType.FIRE, 90.1, -74.005974, NOW, SeverityLevel.MEDIUM);
 
-        mockMvc.perform(post("/incidents")
+        mockMvc.perform(post("/api/v1/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidIncident)))
                 .andExpect(status().isBadRequest())
@@ -74,7 +74,7 @@ class IncidentRestControllerTest {
     void createIncident_WithInvalidLongitude_ReturnsBadRequest() throws Exception {
         IncidentEntityDto invalidIncident = new IncidentEntityDto("1", IncidentType.FIRE, -90.0, -180.1, NOW, SeverityLevel.MEDIUM);
 
-        mockMvc.perform(post("/incidents")
+        mockMvc.perform(post("/api/v1/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidIncident)))
                 .andExpect(status().isBadRequest())
@@ -86,7 +86,7 @@ class IncidentRestControllerTest {
     void getAllIncidents() throws Exception {
         given(service.findAllIncidents()).willReturn(Collections.singletonList(incidentEntityDto));
 
-        mockMvc.perform(get("/incidents"))
+        mockMvc.perform(get("/api/v1/incidents"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(Collections.singletonList(incidentEntityDto))));
     }
@@ -97,7 +97,7 @@ class IncidentRestControllerTest {
 
         given(service.updateIncident(anyString(), any(IncidentEntityDto.class))).willReturn(updatedDto);
 
-        mockMvc.perform(put("/incidents/{id}", "1")
+        mockMvc.perform(put("/api/v1/incidents/{id}", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedDto)))
                 .andExpect(status().isOk())
@@ -108,7 +108,7 @@ class IncidentRestControllerTest {
     void deleteIncident() throws Exception {
         doNothing().when(service).deleteIncident(anyString());
 
-        mockMvc.perform(delete("/incidents/{id}", "1"))
+        mockMvc.perform(delete("/api/v1/incidents/{id}", "1"))
                 .andExpect(status().isNoContent());
 
         verify(service).deleteIncident("1");
@@ -120,7 +120,7 @@ class IncidentRestControllerTest {
 
         given(service.saveIncident(any(IncidentEntityDto.class))).willThrow(new RuntimeException("Unexpected error message"));
 
-        mockMvc.perform(post("/incidents")
+        mockMvc.perform(post("/api/v1/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(incidentEntity)))
                 .andExpect(status().isInternalServerError())
@@ -134,7 +134,7 @@ class IncidentRestControllerTest {
         given(service.updateIncident(anyString(), any(IncidentEntityDto.class)))
                 .willThrow(new EntityNotFoundException("Incident not found"));
 
-        mockMvc.perform(put("/incidents/{id}", "non-existing-id")
+        mockMvc.perform(put("/api/v1/incidents/{id}", "non-existing-id")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(incidentEntityDto)))
                 .andExpect(status().isNotFound())
@@ -155,7 +155,7 @@ class IncidentRestControllerTest {
                 }
                 """.formatted(NOW.toString());
 
-        mockMvc.perform(post("/incidents")
+        mockMvc.perform(post("/api/v1/incidents")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidIncidentTypePayload))
                 .andExpect(status().isBadRequest())
