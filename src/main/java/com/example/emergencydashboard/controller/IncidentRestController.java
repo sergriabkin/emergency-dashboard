@@ -11,7 +11,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/incidents")
+@RequestMapping("/api/v1/incidents")
 @RequiredArgsConstructor
 @Validated
 public class IncidentRestController {

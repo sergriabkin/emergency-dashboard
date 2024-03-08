@@ -218,7 +218,7 @@ The WebSocket functionality ensures that all users of the application receive re
 - **Form Submission Errors**: If the form submission fails, check that all input fields are correctly filled and that the latitude and longitude values are within their valid ranges. The application will validate the input and display error messages for any invalid fields.
 
 ### Using REST api
-- To create an incident using application REST api, send a POST request to `http://localhost:8080/incidents` with the following JSON body:
+- To create an incident using application REST api, send a POST request to `http://localhost:8080/api/v1/incidents` with the following JSON body:
 
   ```json
   {
@@ -230,7 +230,7 @@ The WebSocket functionality ensures that all users of the application receive re
   }
   ```
   
-- To view all incidents, send a GET request to `http://localhost:8080/incidents`. It will show all incidents from DB. Here is some typical response:
+- To view all incidents, send a GET request to `http://localhost:8080/api/v1/incidents`. It will show all incidents from DB. Here is some typical response:
 
   ```json
    [
@@ -252,7 +252,7 @@ The WebSocket functionality ensures that all users of the application receive re
     }
   ]
   ```
-- To search incidents by incidentType, send a GET request to `http://localhost:8080/incidents/search/fire`. It will perform the search based on your query in "incidents" index of Elasticsearch. Here is some typical response:
+- To search incidents by incidentType, send a GET request to `http://localhost:8080/api/v1/incidents/search/fire`. It will perform the search based on your query in "incidents" index of Elasticsearch. Here is some typical response:
 
   ```json
    [
@@ -293,7 +293,7 @@ The application supports advanced search queries against the "incidents" index i
 To search for incidents using these parameters, send a GET request to the endpoint with your query parameters. For example:
 
 ```
-http://localhost:8080/incidents/search?latitude=10.31&longitude=10.41&incidentType=fire&timestamp=2024-03-03T11:30:00
+http://localhost:8080/api/v1/incidents/search?latitude=10.31&longitude=10.41&incidentType=fire&timestamp=2024-03-03T11:30:00
 ```
 
 This request searches the "incidents" index for fire incidents near the specified geographical location, matched the specified time window.

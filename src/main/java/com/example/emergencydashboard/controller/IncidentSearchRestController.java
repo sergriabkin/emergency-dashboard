@@ -18,7 +18,7 @@ import java.util.List;
 import static com.example.emergencydashboard.dto.IncidentEntityDto.*;
 
 @RestController
-@RequestMapping("/incidents/search")
+@RequestMapping("/api/v1/incidents/search")
 @RequiredArgsConstructor
 @Validated
 public class IncidentSearchRestController {
