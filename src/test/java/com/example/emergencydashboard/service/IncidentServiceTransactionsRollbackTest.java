@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +28,8 @@ import static org.mockito.Mockito.*;
 class IncidentServiceTransactionsRollbackTest {
 
     private static final LocalDateTime NOW = LocalDateTime.now();
+    private static final String STRING_ID = "fd5ae13f-3c1c-49be-bda8-405b721be873";
+    private static final UUID UUID_ID = UUID.fromString(STRING_ID);
     @Autowired
     private IncidentService incidentService;
 
@@ -43,7 +46,7 @@ class IncidentServiceTransactionsRollbackTest {
     @Transactional
     void saveIncident_ShouldRollbackTransaction_OnElasticsearchFailure() {
         IncidentEntity mockEntity = new IncidentEntity();
-        mockEntity.setId("1");
+        mockEntity.setId(UUID_ID);
         mockEntity.setIncidentType(IncidentType.FIRE);
         mockEntity.setSeverityLevel(SeverityLevel.HIGH);
         mockEntity.setLatitude(40.712776);
@@ -60,7 +63,7 @@ class IncidentServiceTransactionsRollbackTest {
         entityManager.flush();
         entityManager.clear();
 
-        boolean incidentExistsInJPA = incidentJpaRepository.findById("1").isPresent();
+        boolean incidentExistsInJPA = incidentJpaRepository.findById(UUID_ID).isPresent();
         assertFalse(incidentExistsInJPA);
 
         verify(incidentSearchRepository, times(1)).save(any(IncidentDocument.class));
@@ -69,16 +72,15 @@ class IncidentServiceTransactionsRollbackTest {
     @Test
     @Transactional
     void updateIncident_ShouldRollbackTransaction_OnElasticsearchFailure() {
-        String existingId = "1";
-        IncidentEntity existingEntity = new IncidentEntity(existingId, IncidentType.FIRE, 40.712776, -74.005974, NOW, SeverityLevel.HIGH);
 
-        IncidentEntityDto updateDto = new IncidentEntityDto(existingId, IncidentType.MEDICAL, 41.712776, -73.005974, NOW, SeverityLevel.MEDIUM);
+        IncidentEntity existingEntity = new IncidentEntity(UUID_ID, IncidentType.FIRE, 40.712776, -74.005974, NOW, SeverityLevel.HIGH);
+        IncidentEntityDto updateDto = new IncidentEntityDto(STRING_ID, IncidentType.MEDICAL, 41.712776, -73.005974, NOW, SeverityLevel.MEDIUM);
 
-        when(incidentJpaRepository.existsById(existingId)).thenReturn(true);
+        when(incidentJpaRepository.existsById(UUID_ID)).thenReturn(true);
         when(incidentJpaRepository.save(any(IncidentEntity.class))).thenReturn(existingEntity);
         doThrow(new RuntimeException("Simulated Elasticsearch failure")).when(incidentSearchRepository).save(any(IncidentDocument.class));
 
-        assertThrows(RuntimeException.class, () -> incidentService.updateIncident(existingId, updateDto));
+        assertThrows(RuntimeException.class, () -> incidentService.updateIncident(STRING_ID, updateDto));
 
         entityManager.flush();
         entityManager.clear();
@@ -90,10 +92,10 @@ class IncidentServiceTransactionsRollbackTest {
     @Test
     @Transactional
     void deleteIncident_ShouldRollbackTransaction_OnElasticsearchFailure() {
-        String existingId = "1";
+        String existingId = STRING_ID;
 
-        when(incidentJpaRepository.existsById(existingId)).thenReturn(true);
-        doNothing().when(incidentJpaRepository).deleteById(existingId);
+        when(incidentJpaRepository.existsById(UUID_ID)).thenReturn(true);
+        doNothing().when(incidentJpaRepository).deleteById(UUID_ID);
         doThrow(new RuntimeException("Simulated Elasticsearch failure")).when(incidentSearchRepository).deleteById(existingId);
 
         assertThrows(RuntimeException.class, () -> incidentService.deleteIncident(existingId));
@@ -101,7 +103,7 @@ class IncidentServiceTransactionsRollbackTest {
         entityManager.flush();
         entityManager.clear();
 
-        boolean incidentExistsInJPA = incidentJpaRepository.existsById(existingId);
+        boolean incidentExistsInJPA = incidentJpaRepository.existsById(UUID_ID);
         assertTrue(incidentExistsInJPA, "Incident should still exist in JPA repository after rollback");
 
         verify(incidentSearchRepository, times(1)).deleteById(existingId);

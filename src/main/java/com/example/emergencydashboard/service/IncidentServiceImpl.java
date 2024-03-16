@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +44,7 @@ public class IncidentServiceImpl implements IncidentService {
 
     @Override
     public IncidentEntityDto findIncidentById(String id) {
-        return jpaRepository.findById(id)
+        return jpaRepository.findById(UUID.fromString(id))
                 .map(mapper::entityToDto)
                 .orElseThrow(() -> new EntityNotFoundException(INCIDENT_NOT_FOUND_TEMPLATE + id));
     }
@@ -51,12 +52,12 @@ public class IncidentServiceImpl implements IncidentService {
     @Transactional
     @Override
     public IncidentEntityDto updateIncident(String id, IncidentEntityDto incidentDto) {
-        if (!jpaRepository.existsById(id)) {
+        if (!jpaRepository.existsById(UUID.fromString(id))) {
             throw new EntityNotFoundException(INCIDENT_NOT_FOUND_TEMPLATE + id);
         }
 
         var entityToUpdate = mapper.dtoToEntity(incidentDto);
-        entityToUpdate.setId(id);
+        entityToUpdate.setId(UUID.fromString(id));
 
         var updatedEntity = jpaRepository.save(entityToUpdate);
 
@@ -73,11 +74,12 @@ public class IncidentServiceImpl implements IncidentService {
     @Transactional
     @Override
     public void deleteIncident(String id) {
-        if (!jpaRepository.existsById(id)) {
+        var uuid = UUID.fromString(id);
+        if (!jpaRepository.existsById(uuid)) {
             throw new EntityNotFoundException(INCIDENT_NOT_FOUND_TEMPLATE + id);
         }
 
-        jpaRepository.deleteById(id);
+        jpaRepository.deleteById(uuid);
         searchRepository.deleteById(id);
     }
 
