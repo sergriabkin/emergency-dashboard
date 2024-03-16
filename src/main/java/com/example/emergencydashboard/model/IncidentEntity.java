@@ -3,7 +3,8 @@ package com.example.emergencydashboard.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
+import java.util.UUID;
 
 import javax.persistence.*;
 
@@ -17,9 +18,10 @@ import java.time.LocalDateTime;
 public class IncidentEntity {
 
     @Id
-    @GeneratedValue(generator="system-uuid")
-    @GenericGenerator(name="system-uuid", strategy = "uuid")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Type(type="org.hibernate.type.UUIDCharType")
+    @Column(columnDefinition = "UUID", updatable = false, nullable = false)
+    private UUID id;
 
     @Enumerated(EnumType.STRING)
     private IncidentType incidentType;
